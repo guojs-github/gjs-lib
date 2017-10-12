@@ -1,7 +1,9 @@
 /*
 	Test Entry
-	2017.4.25 GuoJS
+	2017.10.12 GuoJS
 */
+var _browser = null;
+
 $(document).ready(function(){
 	// alert('ready');
 	init();
@@ -9,6 +11,9 @@ $(document).ready(function(){
 
 function init() { // initialize
 	// alert("init");
+	// Global variables
+	_browser = new gjs.lib.browser();
+	
 	bind(); // Bind events
 }
 
@@ -33,7 +38,7 @@ function bindBrowserType() { // Bind browser type event
 
 function onBrowserType() { // Browser type event
 	// alert("onBrowserType");
-	alert(window.gjs.lib.browser.type());
+	alert(_browser.type());
 }
 
 function bindIsIE() { // Bind is ie event
@@ -51,7 +56,7 @@ function bindIsIE() { // Bind is ie event
 
 function onIsIE() {
 	// alert("onIsIE");
-	alert(window.gjs.lib.browser.isIE());
+	alert(_browser.isIE());
 }
 
 
