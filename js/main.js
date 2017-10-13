@@ -1,9 +1,7 @@
 /*
 	Test Entry
-	2017.10.12 GuoJS
+	2017.4.25 GuoJS
 */
-var _browser = null;
-
 $(document).ready(function(){
 	// alert('ready');
 	init();
@@ -11,9 +9,6 @@ $(document).ready(function(){
 
 function init() { // initialize
 	// alert("init");
-	// Global variables
-	_browser = new gjs.lib.browser();
-	
 	bind(); // Bind events
 }
 
@@ -21,6 +16,7 @@ function bind() {
 	// alert("bind");
 	bindBrowserType();
 	bindIsIE();
+	bindAvailHeight();
 }
 
 function bindBrowserType() { // Bind browser type event
@@ -38,7 +34,7 @@ function bindBrowserType() { // Bind browser type event
 
 function onBrowserType() { // Browser type event
 	// alert("onBrowserType");
-	alert(_browser.type());
+	alert(window.gjs.lib.browser.type());
 }
 
 function bindIsIE() { // Bind is ie event
@@ -56,7 +52,25 @@ function bindIsIE() { // Bind is ie event
 
 function onIsIE() {
 	// alert("onIsIE");
-	alert(_browser.isIE());
+	alert(window.gjs.lib.browser.isIE());
+}
+
+function bindAvailHeight() { // Bind get available height event
+	var el = null;
+	try {
+		el = $("#avail-height");
+		if (0 < el.length)
+			el.click(onAvailHeight);
+	} catch(e) {
+		throw e;
+	} finally {
+		e = null;
+	}
+}
+
+function onAvailHeight() {
+	// alert("onAvailHeight");
+	alert(window.gjs.lib.browser.availHeight());
 }
 
 
