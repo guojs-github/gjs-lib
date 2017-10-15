@@ -10,33 +10,6 @@ module.exports = function () {
 var global = global || {};
 global.common = (function () {
 	var obj = {
-		isEmptyString: function(string) { // 是空字符串
-			if (typeof string !== 'string') return true;
-			if (null == string) return true;
-			if ('' == string.trim()) return true;
-
-			return false;
-		},
-		isInvalidObject: function(object) {
-			if (typeof object !== 'object') return true;
-			if (null == object) return true;
-
-			return false;
-		},
-		isInvalidId: function(id) { // 无效id
-			if (typeof id !== 'number') return true;
-			if (null == id) return true;
-			if (isNaN(id)) return true;
-			if (0 >= id) return true;
-
-			return false;
-		},		
-		isInvalidFunction: function(object) {
-			if (typeof object !== 'function') return true;
-			if (null == object) return true;
-
-			return false;
-		},
 		getQueryStringByName: function(name) { // 分析字符串获取指定参数值
 			var reg = new RegExp('[\?\&]' + name + '=([^\&]+)', 'i');
 			var result = window.location.search.match(reg);

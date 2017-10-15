@@ -17,6 +17,7 @@ function bind() {
 	bindBrowserType();
 	bindIsIE();
 	bindAvailHeight();
+	bindServicesGet();
 }
 
 function bindBrowserType() { // Bind browser type event
@@ -72,5 +73,36 @@ function onAvailHeight() {
 	// alert("onAvailHeight");
 	alert(window.gjs.lib.browser.availHeight());
 }
+
+function bindServicesGet() { // Bind ajax services get demo event
+	var el = null;
+	try {
+		el = $("#services-get");
+		if (0 < el.length)
+			el.click(onServicesGet);
+	} catch(e) {
+		throw e;
+	} finally {
+		e = null;
+	}
+}
+
+function onServicesGet() {
+	// alert("onServicesGet");
+	gjs.lib.services.get("http://api.map.baidu.com/geocoder/v2/?callback=JSONP_CALLBACK&output=json&address=故宫&ak=bxrk9NvT5ORyGv21aVUzSVrcn39DLpz6"
+		,onServicesGetSuccess
+		,onServicesGetError);
+}
+
+function onServicesGetSuccess(message) {
+	var data = JSON.stringify(message);
+	alert(data);
+}
+
+function onServicesGetError(request, status, err) {
+	alert("Ajax post演示通讯错误");
+}
+
+
 
 
