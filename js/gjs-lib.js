@@ -79,14 +79,14 @@
 window.gjs = window.gjs || {};
 window.gjs.lib = window.gjs.lib || {};
 window.gjs.lib.common = __webpack_require__(1)();
-window.gjs.lib.browser = __webpack_require__(2)();
-window.gjs.lib.services = __webpack_require__(3)();
+window.gjs.lib.browser = __webpack_require__(3)();
+window.gjs.lib.services = __webpack_require__(4)();
 
 
 
 /***/ }),
 /* 1 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
 /*
 	提供常用功能
@@ -140,6 +140,74 @@ gjs.lib.common = ( function() {
 			} finally {
 				iVal = null;
 			}
+		},
+		getQueryStringByName: function(name) { // 分析字符串获取指定参数值
+			var reg = new RegExp('[\?\&]' + name + '=([^\&]+)', 'i');
+			var result = window.location.search.match(reg);
+			if ( null == result || 1 > result.length) {
+				return "";
+			}
+			return result[1];
+		},
+		formatTime: function(time) { // 格式化时钟显示
+			if (null == time) return "";
+			if (isNaN(time)) return "";
+			
+			var timeFormatted = "";
+			timeFormatted += time.getFullYear();
+			timeFormatted += "-";
+			timeFormatted += $.trim("" + (time.getMonth() + 1)).length < 2 ? "0" + (time.getMonth() + 1) : (time.getMonth() + 1);
+			timeFormatted += "-";
+			timeFormatted += $.trim("" + time.getDate()).length < 2 ? "0" + time.getDate() : time.getDate();
+			timeFormatted += " ";
+			timeFormatted += $.trim("" + time.getHours()).length < 2 ? "0" + time.getHours() : time.getHours();
+			timeFormatted += ":";
+			timeFormatted += $.trim("" + time.getMinutes()).length < 2 ? "0" + time.getMinutes() : time.getMinutes();
+
+			return timeFormatted;
+		},
+		addSeconds: function(time, seconds) { // 在现有时间上添加秒数
+			if (null == time) return null;
+			if (isNaN(time)) return null;
+			if (null == seconds) return null;
+			if (isNaN(seconds)) return null;
+			
+			var ms = time.getTime(); // 转为时间戳
+			var timeAdded = new Date();
+			timeAdded.setTime(ms + seconds * 1000);
+			
+			return timeAdded;
+		}
+	};
+
+	var gis = __webpack_require__(2)(); // 获取GIS相关支持	
+	return $.extend({}, obj, gis); // 扩充后返回
+})();
+
+
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports) {
+
+/*
+	GIS相关常用功能
+	GuoJS 2017/10/16
+*/
+module.exports = function () {
+	var exports = gjs.lib.common;
+	return exports;
+};
+
+var gjs = gjs || {};
+gjs.lib = gjs.lib || {};
+gjs.lib.common = ( function() {
+	var obj = {
+		getDistance: function(point1, point2) { // 估算两点之间距离(利用经纬度信息)，米
+			var a = Math.abs(point1.lng - point2.lng) * 100000;
+			var b = Math.abs(point1.lat - point2.lat) * 100000 * 1.1;
+			
+			return Math.sqrt(a*a + b*b);
 		}
 	};
 	
@@ -149,7 +217,7 @@ gjs.lib.common = ( function() {
 
 
 /***/ }),
-/* 2 */
+/* 3 */
 /***/ (function(module, exports) {
 
 /*
@@ -275,7 +343,7 @@ gjs.lib.browser = ( function() {
 
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, exports) {
 
 /*

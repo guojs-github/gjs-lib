@@ -18,6 +18,8 @@ function bind() {
 	bindIsIE();
 	bindAvailHeight();
 	bindServicesGet();
+	bindFormatTime();
+	bindAddSeconds();
 }
 
 function bindBrowserType() { // Bind browser type event
@@ -103,6 +105,42 @@ function onServicesGetError(request, status, err) {
 	alert("Ajax post演示通讯错误");
 }
 
+function bindFormatTime() { // Bind format time event
+	var el = null;
+	try {
+		el = $("#format-time");
+		if (0 < el.length)
+			el.click(onFormatTime);
+	} catch(e) {
+		throw e;
+	} finally {
+		e = null;
+	}
+}
 
+function onFormatTime() { // Format time event
+	// alert("onFormatTime");
+	var now = new Date();
+	alert(window.gjs.lib.common.formatTime(now));
+}
 
+function bindAddSeconds() { // Bind add seconds event
+	var el = null;
+	try {
+		el = $("#add-seconds");
+		if (0 < el.length)
+			el.click(onAddSeconds);
+	} catch(e) {
+		throw e;
+	} finally {
+		e = null;
+	}
+}
+
+function onAddSeconds() { // Add seconds event
+	// alert("onAddSeconds");
+	var common = window.gjs.lib.common;
+	var now = new Date();
+	alert(common.formatTime(common.addSeconds(now, 90)));
+}
 
