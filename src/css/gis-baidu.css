@@ -1,0 +1,24 @@
+.full-map {
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	margin:0;
+	font-family:"微软雅黑";
+}		
+
+.half-map {
+	height:70%;
+	width:100%;
+}
+
+#result,#result table{
+	width:100%;
+}
+
+.prompt {
+	z-index: 1000;
+	position: absolute;
+	left: 2px;
+	top: 2px;
+	color:red;
+}

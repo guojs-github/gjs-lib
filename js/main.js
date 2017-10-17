@@ -2,6 +2,7 @@
 	Test Entry
 	2017.4.25 GuoJS
 */
+var lib = window.gjs.lib;
 $(document).ready(function(){
 	// alert('ready');
 	init();
@@ -10,6 +11,7 @@ $(document).ready(function(){
 function init() { // initialize
 	// alert("init");
 	bind(); // Bind events
+	lib.gis.baidu.show(); // Show map
 }
 
 function bind() {
@@ -20,6 +22,8 @@ function bind() {
 	bindServicesGet();
 	bindFormatTime();
 	bindAddSeconds();
+	
+	bindGisLocate();
 }
 
 function bindBrowserType() { // Bind browser type event
@@ -37,7 +41,7 @@ function bindBrowserType() { // Bind browser type event
 
 function onBrowserType() { // Browser type event
 	// alert("onBrowserType");
-	alert(window.gjs.lib.browser.type());
+	alert(lib.browser.type());
 }
 
 function bindIsIE() { // Bind is ie event
@@ -55,7 +59,7 @@ function bindIsIE() { // Bind is ie event
 
 function onIsIE() {
 	// alert("onIsIE");
-	alert(window.gjs.lib.browser.isIE());
+	alert(lib.browser.isIE());
 }
 
 function bindAvailHeight() { // Bind get available height event
@@ -73,7 +77,7 @@ function bindAvailHeight() { // Bind get available height event
 
 function onAvailHeight() {
 	// alert("onAvailHeight");
-	alert(window.gjs.lib.browser.availHeight());
+	alert(lib.browser.availHeight());
 }
 
 function bindServicesGet() { // Bind ajax services get demo event
@@ -121,7 +125,7 @@ function bindFormatTime() { // Bind format time event
 function onFormatTime() { // Format time event
 	// alert("onFormatTime");
 	var now = new Date();
-	alert(window.gjs.lib.common.formatTime(now));
+	alert(lib.common.formatTime(now));
 }
 
 function bindAddSeconds() { // Bind add seconds event
@@ -139,8 +143,25 @@ function bindAddSeconds() { // Bind add seconds event
 
 function onAddSeconds() { // Add seconds event
 	// alert("onAddSeconds");
-	var common = window.gjs.lib.common;
+	var common = lib.common;
 	var now = new Date();
 	alert(common.formatTime(common.addSeconds(now, 90)));
+}
+
+function bindGisLocate() { // Bind locate position on map event
+	var el = null;
+	try {
+		el = $("#gis-locate");
+		if (0 < el.length)
+			el.click(onGisLocate);
+	} catch(e) {
+		throw e;
+	} finally {
+		e = null;
+	}
+}
+
+function onGisLocate() { // Locate position on map event
+	alert("onGisLocate");
 }
 

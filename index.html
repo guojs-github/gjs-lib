@@ -3,11 +3,14 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<title>gjs-lib使用演示</title>
-		<!--引入CSS-->
+		<!--引入样式-->
     	<link rel="stylesheet" href="./css/main.css" />
 	
-		<!--引入JS-->
+		<!--引入插件-->
+		<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=bxrk9NvT5ORyGv21aVUzSVrcn39DLpz6"></script>
 		<script type="text/javascript" src="./plugin/jquery/jquery-1.7.2.min.js"></script>
+
+		<!--引入脚本-->
 		<script type="text/javascript" src="./js/gjs-lib.js"></script>
 		<script type="text/javascript" src="./js/main.js"></script>
 	</head>
@@ -20,5 +23,14 @@
 		<div id="services-get" class="button">百度故宫(Ajax Get)</div>
 		<div id="format-time" class="button">格式化当前时间</div>
 		<div id="add-seconds" class="button">当前时间后90秒时间</div>
+		<div>
+			<div>
+				<div id="gis-locate" class="button">地图定位</div>			
+				<div id="message"></div>
+			</div>
+			<div id="map-area">
+				<div id="map"></div>
+			</div>
+		</div>
 	</body>
 </html>

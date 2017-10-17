@@ -21,3 +21,11 @@ body {
 .button:hover {
 	background-color:lightgray;
 }
+
+#map-area {
+	height: 500px !important;
+}
+
+#message {
+	height: 40px;
+}
