@@ -162,6 +162,19 @@ function bindGisLocate() { // Bind locate position on map event
 }
 
 function onGisLocate() { // Locate position on map event
-	alert("onGisLocate");
+	// alert("onGisLocate");
+	lib.gis.baidu.locate(["江苏省苏州市苏州工业园红枫路35号","江苏省苏州市吴中区亭和路86号", "江苏省苏州工业园区同胜路90号"], onGisLocateDone);
+	// lib.gis.baidu.locate(["江苏省苏州市苏州工业园红枫路35号","江苏省苏州市吴中区亭和路86号", "江苏省苏州工业园区同胜路90号","121klfadskl"], onGisLocateDone);
 }
 
+function onGisLocateDone(success, message) { // Locate position call back
+	// alert('onGisLocateDone');
+	var el = $("#gis-message");
+	
+	if (0 < el.length) {
+		if (success)
+			el.html("定位成功");
+		else 
+			el.html("发生错误：" + message);
+	}
+}

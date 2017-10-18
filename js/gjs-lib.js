@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 1);
+/******/ 	return __webpack_require__(__webpack_require__.s = 2);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -147,11 +147,113 @@ function toComment(sourceMap) {
 
 /***/ }),
 /* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/*
+	提供常用功能
+	GuoJS 2017/10/15
+*/
+module.exports = function () {
+	var exports = gjs.lib.common;
+	return exports;
+};
+
+var gjs = gjs || {};
+gjs.lib = gjs.lib || {};
+gjs.lib.common = ( function() {
+	var obj = {
+		isEmptyString: function(string) { // 是空字符串
+			if (typeof string !== 'string') return true;
+			if (null == string) return true;
+			if ('' == string.trim()) return true;
+
+			return false;
+		},
+		isObject: function(object) {
+			if (typeof object !== 'object') return false;
+			if (null == object) return false;
+
+			return true;
+		},
+		isId: function(id) { // 无效id
+			if (typeof id !== 'number') return false;
+			if (null == id) return false;
+			if (isNaN(id)) return false;
+			if (0 >= id) return false;
+
+			return true;
+		},		
+		isFunction: function(object) {
+			if (typeof object !== 'function') return false;
+			if (null == object) return false;
+
+			return true;
+		},
+		isInteger: function(val) {
+			var iVal;
+			
+			try {
+				iVal = parseInt(val);
+				if (isNaN(iVal)) return false;
+				return true;
+			} catch(ex) {
+				return false;
+			} finally {
+				iVal = null;
+			}
+		},
+		getQueryStringByName: function(name) { // 分析字符串获取指定参数值
+			var reg = new RegExp('[\?\&]' + name + '=([^\&]+)', 'i');
+			var result = window.location.search.match(reg);
+			if ( null == result || 1 > result.length) {
+				return "";
+			}
+			return result[1];
+		},
+		formatTime: function(time) { // 格式化时钟显示
+			if (null == time) return "";
+			if (isNaN(time)) return "";
+			
+			var timeFormatted = "";
+			timeFormatted += time.getFullYear();
+			timeFormatted += "-";
+			timeFormatted += $.trim("" + (time.getMonth() + 1)).length < 2 ? "0" + (time.getMonth() + 1) : (time.getMonth() + 1);
+			timeFormatted += "-";
+			timeFormatted += $.trim("" + time.getDate()).length < 2 ? "0" + time.getDate() : time.getDate();
+			timeFormatted += " ";
+			timeFormatted += $.trim("" + time.getHours()).length < 2 ? "0" + time.getHours() : time.getHours();
+			timeFormatted += ":";
+			timeFormatted += $.trim("" + time.getMinutes()).length < 2 ? "0" + time.getMinutes() : time.getMinutes();
+
+			return timeFormatted;
+		},
+		addSeconds: function(time, seconds) { // 在现有时间上添加秒数
+			if (null == time) return null;
+			if (isNaN(time)) return null;
+			if (null == seconds) return null;
+			if (isNaN(seconds)) return null;
+			
+			var ms = time.getTime(); // 转为时间戳
+			var timeAdded = new Date();
+			timeAdded.setTime(ms + seconds * 1000);
+			
+			return timeAdded;
+		}
+	};
+
+	var gis = __webpack_require__(8)(); // 获取GIS相关支持	
+	return $.extend({}, obj, gis); // 扩充后返回
+})();
+
+
+
+/***/ }),
+/* 2 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__css_main_css__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__css_main_css__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__css_main_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__css_main_css__);
 /*
 	Library Main Entry
@@ -164,7 +266,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 // Global Variables
 window.gjs = window.gjs || {};
 window.gjs.lib = window.gjs.lib || {};
-window.gjs.lib.common = __webpack_require__(7)();
+window.gjs.lib.common = __webpack_require__(1)();
 window.gjs.lib.browser = __webpack_require__(9)();
 window.gjs.lib.services = __webpack_require__(10)();
 window.gjs.lib.gis = window.gjs.lib.gis || {};
@@ -173,13 +275,13 @@ window.gjs.lib.gis.baidu = __webpack_require__(11)();
 
 
 /***/ }),
-/* 2 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(3);
+var content = __webpack_require__(4);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -187,7 +289,7 @@ var transform;
 var options = {"hmr":true}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(5)(content, options);
+var update = __webpack_require__(6)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -204,12 +306,12 @@ if(false) {
 }
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(0)(undefined);
 // imports
-exports.i(__webpack_require__(4), "");
+exports.i(__webpack_require__(5), "");
 
 // module
 exports.push([module.i, "/*百度地理引擎所需样式*/\r\n\r\nbody, html {\r\n\twidth: 100%;\r\n\theight: 100%;\r\n\tmargin:0;\r\n\tpadding: 0;\r\n\tfont-family:\"Microsoft Yahei\";\r\n\tfont-size: 13px;\r\n}\r\n", ""]);
@@ -218,7 +320,7 @@ exports.push([module.i, "/*百度地理引擎所需样式*/\r\n\r\nbody, html {\
 
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(0)(undefined);
@@ -232,7 +334,7 @@ exports.push([module.i, ".full-map {\r\n\twidth: 100%;\r\n\theight: 100%;\r\n\to
 
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -288,7 +390,7 @@ var singleton = null;
 var	singletonCounter = 0;
 var	stylesInsertedAtTop = [];
 
-var	fixUrls = __webpack_require__(6);
+var	fixUrls = __webpack_require__(7);
 
 module.exports = function(list, options) {
 	if (typeof DEBUG !== "undefined" && DEBUG) {
@@ -604,7 +706,7 @@ function updateLink (link, options, obj) {
 
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports) {
 
 
@@ -696,108 +798,6 @@ module.exports = function (css) {
 	// send back the fixed css
 	return fixedCss;
 };
-
-
-/***/ }),
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/*
-	提供常用功能
-	GuoJS 2017/10/15
-*/
-module.exports = function () {
-	var exports = gjs.lib.common;
-	return exports;
-};
-
-var gjs = gjs || {};
-gjs.lib = gjs.lib || {};
-gjs.lib.common = ( function() {
-	var obj = {
-		isEmptyString: function(string) { // 是空字符串
-			if (typeof string !== 'string') return true;
-			if (null == string) return true;
-			if ('' == string.trim()) return true;
-
-			return false;
-		},
-		isObject: function(object) {
-			if (typeof object !== 'object') return false;
-			if (null == object) return false;
-
-			return true;
-		},
-		isId: function(id) { // 无效id
-			if (typeof id !== 'number') return false;
-			if (null == id) return false;
-			if (isNaN(id)) return false;
-			if (0 >= id) return false;
-
-			return true;
-		},		
-		isFunction: function(object) {
-			if (typeof object !== 'function') return false;
-			if (null == object) return false;
-
-			return true;
-		},
-		isInteger: function(val) {
-			var iVal;
-			
-			try {
-				iVal = parseInt(val);
-				if (isNaN(iVal)) return false;
-				return true;
-			} catch(ex) {
-				return false;
-			} finally {
-				iVal = null;
-			}
-		},
-		getQueryStringByName: function(name) { // 分析字符串获取指定参数值
-			var reg = new RegExp('[\?\&]' + name + '=([^\&]+)', 'i');
-			var result = window.location.search.match(reg);
-			if ( null == result || 1 > result.length) {
-				return "";
-			}
-			return result[1];
-		},
-		formatTime: function(time) { // 格式化时钟显示
-			if (null == time) return "";
-			if (isNaN(time)) return "";
-			
-			var timeFormatted = "";
-			timeFormatted += time.getFullYear();
-			timeFormatted += "-";
-			timeFormatted += $.trim("" + (time.getMonth() + 1)).length < 2 ? "0" + (time.getMonth() + 1) : (time.getMonth() + 1);
-			timeFormatted += "-";
-			timeFormatted += $.trim("" + time.getDate()).length < 2 ? "0" + time.getDate() : time.getDate();
-			timeFormatted += " ";
-			timeFormatted += $.trim("" + time.getHours()).length < 2 ? "0" + time.getHours() : time.getHours();
-			timeFormatted += ":";
-			timeFormatted += $.trim("" + time.getMinutes()).length < 2 ? "0" + time.getMinutes() : time.getMinutes();
-
-			return timeFormatted;
-		},
-		addSeconds: function(time, seconds) { // 在现有时间上添加秒数
-			if (null == time) return null;
-			if (isNaN(time)) return null;
-			if (null == seconds) return null;
-			if (isNaN(seconds)) return null;
-			
-			var ms = time.getTime(); // 转为时间戳
-			var timeAdded = new Date();
-			timeAdded.setTime(ms + seconds * 1000);
-			
-			return timeAdded;
-		}
-	};
-
-	var gis = __webpack_require__(8)(); // 获取GIS相关支持	
-	return $.extend({}, obj, gis); // 扩充后返回
-})();
-
 
 
 /***/ }),
@@ -1053,6 +1053,7 @@ module.exports = function () {
 	return exports;
 };
 
+var common = __webpack_require__(1)();
 var parent = __webpack_require__(12)();
 var gjs = gjs || {};
 gjs.lib = gjs.lib || {};
@@ -1060,7 +1061,23 @@ gjs.lib.gis  = gjs.lib.gis || {};
 gjs.lib.gis.baidu = ( function() {
 	var obj = {
 		mapId: "map"
-		, messageId: "message"
+		, labelStyle: { // 标注文字说明样式
+			height : "20px",
+			lineHeight : "20px",
+			padding:"0 5px 0 5px",
+			color : "gray",
+			backgroundColor:"white",
+			fontSize : "14px",
+			fontFamily:"Microsoft Yahei",
+			border:"1px solid gray",
+			borderRadius:"3px",
+			mozBorderRadius:"3px",
+			webkitBorderRadius:"3px",
+			webkitBoxShadow:"#666 0px 0px 10px",
+			mozBoxShadow:"#666 0px 0px 10px",
+			boxShadow:"#666 0px 0px 10px"									
+		}
+		, message: ""
 		, show: function() { // 初始化地图并显示
 			var map = new BMap.Map("map"); // 创建地图对象
 			$("#map").removeClass();
@@ -1068,7 +1085,105 @@ gjs.lib.gis.baidu = ( function() {
 			map.enableScrollWheelZoom(true); // 支持缩放
 			map.centerAndZoom("北京"); // 显示定位			
 		}
-		, locate: function(points) { // 地图定位功能 
+		, locate: function(positions, onDone) { // 地图定位功能 
+			var map = new BMap.Map("map"); // 创建地图对象
+			$("#map").removeClass();
+			$("#map").addClass("full-map");
+			map.enableScrollWheelZoom(true); // 支持缩放
+
+			var thisObj = this; 
+			thisObj.message = "";
+			thisObj.map = map;
+			thisObj.points = [];
+			this.doLocate(thisObj, positions, 0, onDone);
+		}
+		, doLocate: function(thisObj, positions, index, onDone) {
+			// Check
+			if (null == positions) return;
+			if (index >= positions.length) { // Locate done!
+				if (common.isFunction(onDone)) { // Call back
+					if (common.isEmptyString(thisObj.message))
+						onDone(true);
+					else
+						onDone(false, thisObj.message);
+				}
+				return;
+			}
+			
+			var myGeo = new BMap.Geocoder(); // 创建地址解析器实例
+			var address = positions[index];
+			var map = thisObj.map;			
+
+			// 获得点位后进行显示标注
+			var doMarker = thisObj.marker;
+			var doLabel = thisObj.label;
+			var doEnsureLocateViewPort = thisObj.ensureLocateViewPort;
+			myGeo.getPoint(address, function(point){
+				if (point) {
+					map.centerAndZoom(point,12); // 显示定位
+
+					// 添加标注
+					doMarker(thisObj, point, true);
+					// 添加说明标签
+					doLabel(thisObj, point, address);
+
+					// 调整视野确保对应的点都能显示在视野中
+					thisObj.points[thisObj.points.length] = point;
+					doEnsureLocateViewPort(map, thisObj.points);
+				}else{
+					thisObj.message += "invalid address:" + address + ";";
+				}
+
+				// 递归定位
+				thisObj.doLocate(thisObj, positions, (index+1), onDone);
+			});
+		}
+		, marker: function(thisObj, point, animate, icon) { // 为定位点添加标注
+			// Check
+			var map = thisObj.map;
+			if (!common.isObject(map))
+				return null;
+			if (!common.isObject(point))
+				return null;
+			
+			// 添加标注
+			var marker = null;
+			if (!common.isObject(icon))
+				marker = new BMap.Marker(point);
+			else
+				marker = new BMap.Marker(point, {icon: icon}); 
+			map.addOverlay(marker);               // 将标注添加到地图中
+
+			if (animate) // 添加动画
+				marker.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
+
+			return marker;
+		}
+		, label: function(thisObj, point, content, labelOptions, labelStyle) { // 在地图指定地方添加标签说明
+			var map = thisObj.map;
+			var opts = {
+				position : point,    // 指定文本标注所在的地理位置
+				offset   : new BMap.Size(30, -30)    //设置文本偏移量
+			};
+			if (null != labelOptions)
+				$.extend(opts, labelOptions);
+			var label = new BMap.Label(content, opts);  // 创建文本标注对象
+			var style = thisObj.labelStyle;
+			if (null != labelStyle)
+				$.extend(style, labelStyle)
+			label.setStyle(style);
+			map.addOverlay(label);   
+
+			return label;
+		}
+		, ensureLocateViewPort: function(map, points) { // 确保定位的点都能在地图上显示出来
+			if (!common.isObject(map)) // 确保map对象有效
+				return;
+			if (0 >= points.length) // 确保定位点不是空
+				return;
+
+			// 设置视野
+			map.setViewport(points);
 		}
 	};
 	

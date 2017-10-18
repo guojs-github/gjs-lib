@@ -23,9 +23,11 @@ body {
 }
 
 #map-area {
-	height: 500px !important;
+	height: 600px !important;
 }
 
-#message {
+#gis-message {
 	height: 40px;
+	line-height: 40px;
+	margin-left: 10px;
 }
