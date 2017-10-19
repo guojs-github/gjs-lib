@@ -11,7 +11,7 @@ $(document).ready(function(){
 function init() { // initialize
 	// alert("init");
 	bind(); // Bind events
-	lib.gis.baidu.show(); // Show map
+	lib.gis.baidu.init(); // Show map
 }
 
 function bind() {
@@ -24,6 +24,7 @@ function bind() {
 	bindAddSeconds();
 	
 	bindGisLocate();
+	bindGisPathByAddress();
 }
 
 function bindBrowserType() { // Bind browser type event
@@ -176,5 +177,36 @@ function onGisLocateDone(success, message) { // Locate position call back
 			el.html("定位成功");
 		else 
 			el.html("发生错误：" + message);
+	}
+}
+
+function bindGisPathByAddress() { // Bind paint path by address list on map event
+	var el = null;
+	try {
+		el = $("#gis-path-by-address");
+		if (0 < el.length)
+			el.click(onGisPathByAddress);
+	} catch(e) {
+		throw e;
+	} finally {
+		e = null;
+	}
+}
+
+function onGisPathByAddress() { // Locate position on map event
+	//alert("onGisPathByAddress");
+	var el = $("#gis-message");
+	if (0 < el.length) 
+		el.html("");
+	lib.gis.baidu.pathByAddress("天安门","百度大厦", ["北京科技大学","北京国际会议中心"], 0, onGisPathByAddressFail);
+	// lib.gis.baidu.pathByAddress("xxxxxxxx","百度大厦", ["北京科技大学","北京国际会议中心"], 0, onGisPathByAddressFail);
+}
+
+function onGisPathByAddressFail(message) { // Paint path by address list on map fail event
+	// alert('onGisPathByAddressFail');
+	var el = $("#gis-message");
+	
+	if (0 < el.length) {
+			el.html(el.html() + message);
 	}
 }

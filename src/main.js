@@ -13,5 +13,5 @@ window.gjs.lib.common = require('./common.js')();
 window.gjs.lib.browser = require('./browser.js')();
 window.gjs.lib.services = require('./services.js')();
 window.gjs.lib.gis = window.gjs.lib.gis || {};
-window.gjs.lib.gis.baidu = require('./gis-baidu.js')();
+window.gjs.lib.gis.baidu = require('./gis/gis-baidu.js')();
 
