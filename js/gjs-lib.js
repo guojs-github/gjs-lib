@@ -1217,7 +1217,8 @@ gjs.lib.gis.baidu = ( function() {
 				thisObj.doLocate(thisObj, positions, (index+1), onDone);
 			});
 		}
-		, pathByAddress: function(start, end, transitPoints, policy, onFail) { // paint a path by addresses
+		, pathByAddresses: function(start, end, transitPoints, policy, onFail) { // paint a path by addresses
+			// Initialize the map
 			var map = this.init();
 			
  			// 检查起点是否有效
@@ -1231,7 +1232,7 @@ gjs.lib.gis.baidu = ( function() {
 				this.checkAddress(transitPoints[i], onFail);
 
 			// call back
-			var onPathDone = function (results) {
+			var searchComplete = function (results) {
 				if (BMAP_STATUS_SUCCESS != driving.getStatus()) {
 					if (common.isFunction(onFail))
 						onFail("Fail to paint the path by address list");
@@ -1245,12 +1246,90 @@ gjs.lib.gis.baidu = ( function() {
 				, {
 					renderOptions: {map:map, panel: this.resultId, autoViewport:true}
 					, policy: routePolicy[policy]
-					, onSearchComplete: onPathDone
+					, onSearchComplete: searchComplete
 				}
 			);
 			driving.search(start, end, {waypoints:transitPoints});
 
 		}
+		, pathByPoints: function(start, end, transitPoints, policy, onFail) { // 依据指定点的经纬度绘制路径				
+			// Initialize the map
+			var map = this.init();
+
+			// 准备绘图用的坐标点
+			var startt = new BMap.Point(start.lng, start.lat);
+			var endd = new BMap.Point(end.lng, end.lat);
+			var transitPointss = new Array();
+			for (var i = 0; i < transitPoints.length; i ++) {
+				transitPointss[i] = new BMap.Point(transitPoints[i].lng, transitPoints[i].lat);
+			}
+
+			// 开始绘图
+			var thisObj = this; thisObj.map = map;
+			// var debug = this.showPath;
+			var doLabel = this.label;
+			// var doGetPrompt = this.getPathPointPrompt;
+			// var doPathPointLabel = this.pathPointLabel;
+			// var flag = false;
+			var searchComplete = function (results) {
+				if (BMAP_STATUS_SUCCESS == driving.getStatus()) {
+					/*
+					// 只做一次
+					if (flag) return;
+					flag = true;
+
+					// 保存记录
+					interface.savePath(results, debug); // 保存驾车线路						
+					
+					// 添加关键点信息标注
+					doPathPointLabel({
+						results: results,
+						map: map,
+						doLabel: doLabel,
+						doGetPrompt: doGetPrompt,
+						start: start,
+						end: end,
+						transitPoints: transitPoints
+					});
+					*/
+					doLabel(thisObj, startt, start.address); // 起点					
+					doLabel(thisObj, endd, end.address); // 终点
+					// 必经点
+					for (var i = 0; i < transitPointss.length; i ++) {
+						doLabel(thisObj, transitPointss[i], transitPoints[i].address);
+					}		
+/* 			doLabel(
+				map
+				, end
+				, options.end.address + doGetPrompt(options.end.distance, options.end.duration)
+			); // 终点带估算
+ 			for (var i = 0; i < options.transitPoints.length; i ++) {
+				doLabel(
+					map
+					, transitPoints[i]
+					, options.transitPoints[i].address + doGetPrompt(options.transitPoints[i].distance, options.transitPoints[i].duration)
+				);
+			} // 显示必经点			
+			*/
+					
+				} else {
+					if (common.isFunction(onFail))
+						onFail("Fail to paint the path by point list");
+					return;					
+				}	
+			}
+			var routePolicy = [BMAP_DRIVING_POLICY_LEAST_TIME,BMAP_DRIVING_POLICY_LEAST_DISTANCE,BMAP_DRIVING_POLICY_AVOID_HIGHWAYS]; //三种驾车策略：最少时间，最短距离，避开高速
+			if ((!common.isInteger(policy)) || (0 > policy) || (routePolicy.length <= policy)) policy = 0;
+			var driving = new BMap.DrivingRoute(
+				map
+				, {
+					renderOptions: {map:map, panel:this.resultId, autoViewport:true}
+					, policy: routePolicy[policy]
+					, onSearchComplete: searchComplete
+				}
+			);
+			driving.search(startt, endd, {waypoints:transitPointss});
+		}		
 	};
 	
 	return $.extend({}, parent, obj);

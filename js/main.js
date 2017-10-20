@@ -24,7 +24,8 @@ function bind() {
 	bindAddSeconds();
 	
 	bindGisLocate();
-	bindGisPathByAddress();
+	bindGisPathByAddresses();
+	bindGisPathByPoints();
 }
 
 function bindBrowserType() { // Bind browser type event
@@ -180,12 +181,12 @@ function onGisLocateDone(success, message) { // Locate position call back
 	}
 }
 
-function bindGisPathByAddress() { // Bind paint path by address list on map event
+function bindGisPathByAddresses() { // Bind paint path by address list on map event
 	var el = null;
 	try {
-		el = $("#gis-path-by-address");
+		el = $("#gis-path-by-addresses");
 		if (0 < el.length)
-			el.click(onGisPathByAddress);
+			el.click(onGisPathByAddresses);
 	} catch(e) {
 		throw e;
 	} finally {
@@ -193,17 +194,56 @@ function bindGisPathByAddress() { // Bind paint path by address list on map even
 	}
 }
 
-function onGisPathByAddress() { // Locate position on map event
-	//alert("onGisPathByAddress");
+function onGisPathByAddresses() { // Locate position on map event
+	//alert("onGisPathByAddresses");
 	var el = $("#gis-message");
 	if (0 < el.length) 
 		el.html("");
-	lib.gis.baidu.pathByAddress("天安门","百度大厦", ["北京科技大学","北京国际会议中心"], 0, onGisPathByAddressFail);
-	// lib.gis.baidu.pathByAddress("xxxxxxxx","百度大厦", ["北京科技大学","北京国际会议中心"], 0, onGisPathByAddressFail);
+	lib.gis.baidu.pathByAddresses("天安门","百度大厦", ["北京科技大学","北京国际会议中心"], 0, onGisPathByAddressesFail);
+	// lib.gis.baidu.pathByAddresses("xxxxxxxx","百度大厦", ["北京科技大学","北京国际会议中心"], 0, onGisPathByAddressesFail);
 }
 
-function onGisPathByAddressFail(message) { // Paint path by address list on map fail event
+function onGisPathByAddressesFail(message) { // Paint path by address list on map fail event
 	// alert('onGisPathByAddressFail');
+	var el = $("#gis-message");
+	
+	if (0 < el.length) {
+			el.html(el.html() + message);
+	}
+}
+
+function bindGisPathByPoints() { // Bind paint path by gps point list on map event
+	var el = null;
+	try {
+		el = $("#gis-path-by-points");
+		if (0 < el.length)
+			el.click(onGisPathByPoints);
+	} catch(e) {
+		throw e;
+	} finally {
+		e = null;
+	}
+}
+
+function onGisPathByPoints() { // Paint path by gps points on map event
+	// alert("onGisPathByPoints");
+	var el = $("#gis-message");
+	if (0 < el.length) 
+		el.html("");
+	lib.gis.baidu.pathByPoints(
+		{address:"江苏省苏州新区淮海街1号", lng:120.569285, lat:31.291723}
+		, {address:"江苏省苏州市吴中区胥口镇孙武路86号", lng:120.500013, lat:31.251257}
+		, [
+			{address:"江苏省苏州市苏州新区马运路266号", lng:120.549671, lat:31.324053}
+			, {address:"江苏省苏州新区珠江路521号", lng:120.538221, lat:31.331304}
+		]
+		, 0
+		, onGisPathByPointsFail
+	);
+}
+
+function onGisPathByPointsFail(message) { // Paint path by gps points on map fail event
+	// alert('onGisPathByPointsFail');
 	var el = $("#gis-message");
 	
 	if (0 < el.length) {
