@@ -121,24 +121,24 @@ gjs.lib.gis.baidu = ( function() {
 			
 			return map;
 		}
-		, locate: function(positions, onDone) { // 地图定位功能 
+		, locate: function(positions, onComplete) { // 地图定位功能 
 			var map = this.init();
 
 			var thisObj = this; 
 			thisObj.message = "";
 			thisObj.map = map;
 			thisObj.points = [];
-			this.doLocate(thisObj, positions, 0, onDone);
+			this.doLocate(thisObj, positions, 0, onComplete);
 		}
-		, doLocate: function(thisObj, positions, index, onDone) {
+		, doLocate: function(thisObj, positions, index, onComplete) {
 			// Check
 			if (null == positions) return;
 			if (index >= positions.length) { // Locate done!
-				if (common.isFunction(onDone)) { // Call back
+				if (common.isFunction(onComplete)) { // Call back
 					if (common.isEmptyString(thisObj.message))
-						onDone(true);
+						onComplete(true);
 					else
-						onDone(false, thisObj.message);
+						onComplete(false, thisObj.message);
 				}
 				return;
 			}
@@ -168,7 +168,7 @@ gjs.lib.gis.baidu = ( function() {
 				}
 
 				// 递归定位
-				thisObj.doLocate(thisObj, positions, (index+1), onDone);
+				thisObj.doLocate(thisObj, positions, (index+1), onComplete);
 			});
 		}
 		, pathByAddresses: function(start, end, transitPoints, policy, onFail) { // paint a path by addresses
@@ -220,7 +220,7 @@ gjs.lib.gis.baidu = ( function() {
 
 			// 开始绘图
 			var thisObj = this; thisObj.map = map;
-			// var debug = this.showPath;
+			var doSavePath = this.savePath;
 			var doLabel = this.label;
 			// var doGetPrompt = this.getPathPointPrompt;
 			// var doPathPointLabel = this.pathPointLabel;
@@ -246,6 +246,8 @@ gjs.lib.gis.baidu = ( function() {
 						transitPoints: transitPoints
 					});
 					*/
+					thisObj.result = {path: results, start: start, end: end, transitPoints: transitPoints};
+					doSavePath(thisObj.result);
 					doLabel(thisObj, startt, start.address); // 起点					
 					doLabel(thisObj, endd, end.address); // 终点
 					// 必经点
@@ -283,6 +285,87 @@ gjs.lib.gis.baidu = ( function() {
 				}
 			);
 			driving.search(startt, endd, {waypoints:transitPointss});
+		}
+		, savePath: function(result) { // 保存路径
+			// 取得线路的地理坐标链，并转换为可保存的结构
+			var plan = result.path.getPlan(0); // 获取第一个解决方案
+			var path = [];
+			var index = 0;
+			for (var i = 0; i < plan.getNumRoutes(); i++) {
+				var route = plan.getRoute(i); // 获取驾车方案中的一段
+				var subPath = route.getPath();
+				for (var j = 0; j < subPath.length; j ++ ) {
+					path[index] = subPath[j];
+					index ++;
+				}
+			}
+					
+			// 保存每个点之间的距离
+			for (var i = 0; i < path.length; i ++ ) {
+				if (0 == i) 
+					path[i].distance = 0;
+				else
+					path[i].distance = common.getDistance(
+						{lng: path[i - 1].lng, lat: path[i - 1].lat}
+						, {lng: path[i].lng, lat: path[i].lat});
+			}						
+			
+			/*
+			// 记录估算信息
+			var distance = plan.getDistance(false); // 获得估算的距离（米）
+			var duration = plan.getDuration(false); // 获取估算的时长（秒）
+			options.end.distance = distance;
+			options.end.duration = duration;
+			var pathPos = 0; // 在路径上寻找与必经点最近的点，方便估算，此处保证路径只遍历一遍，防止最后必经点地理上接近起点的情况
+			var subDistance = 0;
+			for (var i = 0; i < options.transitPoints.length; i ++) {
+				// 找必经点在路线中的位置
+				for (var j = pathPos; j < path.length ; j ++) {
+					subDistance += path[j].distance;
+
+					// 判断采样点与必经点的距离
+					var distanceTemp = common.getDistance(
+						{lng: options.transitPoints[i].lng, lat: options.transitPoints[i].lat}
+						, {lng: path[j].lng, lat: path[j].lat}
+					);					
+					if  ( 50 >= distanceTemp) { // 距离够近
+						var subDuration = duration / distance * subDistance;
+						options.transitPoints[i].distance = subDistance;
+						options.transitPoints[i].duration = subDuration;
+						pathPos = j + 1; // 记录当前搜索到的位置
+						break;
+					} // found
+				} // 搜索路径点
+			} // 每个必经点			
+			*/
+/*			
+			// 组织路径信息
+			var pathInfo = {
+				start: options.start, // 起点
+				end: options.end, // 终点
+				transitPoints: options.transitPoints, // 途经点
+				path: path // 路径
+			};
+			var pathInfoString = JSON.stringify(pathInfo);
+
+			if (common.isInvalidId(options.id)) // 没有id不保存
+				return;
+				
+			// 调用后端接口进行保存
+			$.ajax({
+				url:'./server/savePath.jsp',
+				type:'post',
+				data:{'id':options.id,'path':pathInfoString},
+				dataType: 'text',
+				error: function() { 
+					alert('无法正确调用保存路径过程'); 
+				},
+				success: function(data) {
+					if ("true" != $.trim(data))
+						alert('无法正确保存路径:' + data); 
+				}
+			});		
+		*/
 		}		
 	};
 	
