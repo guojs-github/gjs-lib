@@ -238,15 +238,31 @@ function onGisPathByPoints() { // Paint path by gps points on map event
 			, {address:"江苏省苏州新区珠江路521号", lng:120.538221, lat:31.331304}
 		]
 		, 0
-		, onGisPathByPointsFail
+		, onGisPathByPointsComplete
 	);
 }
 
-function onGisPathByPointsFail(message) { // Paint path by gps points on map fail event
+function onGisPathByPointsComplete(success, message) { // Paint path by gps points on map complete event
 	// alert('onGisPathByPointsFail');
 	var el = $("#gis-message");
 	
 	if (0 < el.length) {
-			el.html(el.html() + message);
+		if (success) {
+			// alert(message);			
+			lib.services.post(
+				'./jsp/savePath.jsp'
+				, {'id':10000, 'path':message}
+				, function(data) { // success
+					if ("true" != $.trim(data))
+						alert('无法正确保存路径:' + data); 
+				}
+				, function() { // fail
+					alert('无法正确调用保存路径过程'); 
+				}
+				, 2000
+			);
+		} else {
+			el.html(message);
+		}
 	}
 }

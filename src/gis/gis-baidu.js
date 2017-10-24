@@ -7,7 +7,7 @@ module.exports = function () {
 	return exports;
 };
 
-var common = require("../common.js")();
+var common = require("../common/common.js")();
 var parent = require('./gis.js')();
 var gjs = gjs || {};
 gjs.lib = gjs.lib || {};
@@ -206,7 +206,7 @@ gjs.lib.gis.baidu = ( function() {
 			driving.search(start, end, {waypoints:transitPoints});
 
 		}
-		, pathByPoints: function(start, end, transitPoints, policy, onFail) { // 依据指定点的经纬度绘制路径				
+		, pathByPoints: function(start, end, transitPoints, policy, onComplete) { // 依据指定点的经纬度绘制路径				
 			// Initialize the map
 			var map = this.init();
 
@@ -222,58 +222,48 @@ gjs.lib.gis.baidu = ( function() {
 			var thisObj = this; thisObj.map = map;
 			var doSavePath = this.savePath;
 			var doLabel = this.label;
-			// var doGetPrompt = this.getPathPointPrompt;
+			var doGetPrompt = this.getPathPointPrompt;
 			// var doPathPointLabel = this.pathPointLabel;
 			// var flag = false;
 			var searchComplete = function (results) {
 				if (BMAP_STATUS_SUCCESS == driving.getStatus()) {
-					/*
-					// 只做一次
-					if (flag) return;
-					flag = true;
-
-					// 保存记录
-					interface.savePath(results, debug); // 保存驾车线路						
-					
-					// 添加关键点信息标注
-					doPathPointLabel({
-						results: results,
-						map: map,
-						doLabel: doLabel,
-						doGetPrompt: doGetPrompt,
-						start: start,
-						end: end,
-						transitPoints: transitPoints
-					});
-					*/
+					// Save path
 					thisObj.result = {path: results, start: start, end: end, transitPoints: transitPoints};
 					doSavePath(thisObj.result);
-					doLabel(thisObj, startt, start.address); // 起点					
-					doLabel(thisObj, endd, end.address); // 终点
+					
+					// Show infromation on this plan
+					var result = thisObj.result;
+					doLabel(thisObj, result.start, result.start.address); // 起点					
+					doLabel(
+						thisObj
+						, result.end
+						, result.end.address
+							+ doGetPrompt(
+								result.end.distance
+								, result.end.duration
+							)
+						); // 终点
 					// 必经点
 					for (var i = 0; i < transitPointss.length; i ++) {
-						doLabel(thisObj, transitPointss[i], transitPoints[i].address);
-					}		
-/* 			doLabel(
-				map
-				, end
-				, options.end.address + doGetPrompt(options.end.distance, options.end.duration)
-			); // 终点带估算
- 			for (var i = 0; i < options.transitPoints.length; i ++) {
-				doLabel(
-					map
-					, transitPoints[i]
-					, options.transitPoints[i].address + doGetPrompt(options.transitPoints[i].distance, options.transitPoints[i].duration)
-				);
-			} // 显示必经点			
-			*/
-					
+						doLabel(
+							thisObj
+							, result.transitPoints[i]
+							, result.transitPoints[i].address 
+								+ doGetPrompt(
+									result.transitPoints[i].distance
+									, result.transitPoints[i].duration
+								)
+							);
+					}
+
+					// Call back success
+					if (common.isFunction(onComplete))
+						onComplete(true, JSON.stringify(result));
 				} else {
-					if (common.isFunction(onFail))
-						onFail("Fail to paint the path by point list");
-					return;					
+					if (common.isFunction(onComplete))
+						onComplete(false, "Fail to paint the path by point list");
 				}	
-			}
+			} // search complete call back
 			var routePolicy = [BMAP_DRIVING_POLICY_LEAST_TIME,BMAP_DRIVING_POLICY_LEAST_DISTANCE,BMAP_DRIVING_POLICY_AVOID_HIGHWAYS]; //三种驾车策略：最少时间，最短距离，避开高速
 			if ((!common.isInteger(policy)) || (0 > policy) || (routePolicy.length <= policy)) policy = 0;
 			var driving = new BMap.DrivingRoute(
@@ -310,63 +300,36 @@ gjs.lib.gis.baidu = ( function() {
 						, {lng: path[i].lng, lat: path[i].lat});
 			}						
 			
-			/*
 			// 记录估算信息
-			var distance = plan.getDistance(false); // 获得估算的距离（米）
-			var duration = plan.getDuration(false); // 获取估算的时长（秒）
-			options.end.distance = distance;
-			options.end.duration = duration;
+			result.end.distance = plan.getDistance(false); // 获得估算的距离（米）
+			result.end.duration = plan.getDuration(false); // 获取估算的时长（秒）
 			var pathPos = 0; // 在路径上寻找与必经点最近的点，方便估算，此处保证路径只遍历一遍，防止最后必经点地理上接近起点的情况
 			var subDistance = 0;
-			for (var i = 0; i < options.transitPoints.length; i ++) {
+			var subDuration = 0;
+			for (var i = 0; i < result.transitPoints.length; i ++) {
 				// 找必经点在路线中的位置
 				for (var j = pathPos; j < path.length ; j ++) {
 					subDistance += path[j].distance;
 
 					// 判断采样点与必经点的距离
 					var distanceTemp = common.getDistance(
-						{lng: options.transitPoints[i].lng, lat: options.transitPoints[i].lat}
+						{lng: result.transitPoints[i].lng, lat: result.transitPoints[i].lat}
 						, {lng: path[j].lng, lat: path[j].lat}
 					);					
-					if  ( 50 >= distanceTemp) { // 距离够近
-						var subDuration = duration / distance * subDistance;
-						options.transitPoints[i].distance = subDistance;
-						options.transitPoints[i].duration = subDuration;
+					if  (50 >= distanceTemp) { // 距离够近
+						subDuration = result.end.duration / result.end.distance * subDistance;
+						result.transitPoints[i].distance = subDistance;
+						result.transitPoints[i].duration = subDuration;
 						pathPos = j + 1; // 记录当前搜索到的位置
 						break;
 					} // found
 				} // 搜索路径点
 			} // 每个必经点			
-			*/
-/*			
-			// 组织路径信息
-			var pathInfo = {
-				start: options.start, // 起点
-				end: options.end, // 终点
-				transitPoints: options.transitPoints, // 途经点
-				path: path // 路径
-			};
-			var pathInfoString = JSON.stringify(pathInfo);
-
-			if (common.isInvalidId(options.id)) // 没有id不保存
-				return;
-				
-			// 调用后端接口进行保存
-			$.ajax({
-				url:'./server/savePath.jsp',
-				type:'post',
-				data:{'id':options.id,'path':pathInfoString},
-				dataType: 'text',
-				error: function() { 
-					alert('无法正确调用保存路径过程'); 
-				},
-				success: function(data) {
-					if ("true" != $.trim(data))
-						alert('无法正确保存路径:' + data); 
-				}
-			});		
-		*/
-		}		
+		}
+		, getPathPointPrompt: function(distance, duration) { // 显示路径估算距离与时间信息
+			return " 【" + common.getDistancePrompt(distance) + "，" + common.getDurationPrompt(duration) +"】"
+		}
+		
 	};
 	
 	return $.extend({}, parent, obj);

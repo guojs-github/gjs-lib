@@ -9,7 +9,7 @@ import './css/main.css';
 // Global Variables
 window.gjs = window.gjs || {};
 window.gjs.lib = window.gjs.lib || {};
-window.gjs.lib.common = require('./common.js')();
+window.gjs.lib.common = require('./common/common.js')();
 window.gjs.lib.browser = require('./browser.js')();
 window.gjs.lib.services = require('./services.js')();
 window.gjs.lib.gis = window.gjs.lib.gis || {};
