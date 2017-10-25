@@ -26,6 +26,7 @@ function bind() {
 	bindGisLocate();
 	bindGisPathByAddresses();
 	bindGisPathByPoints();
+	bindGisShowPath();
 }
 
 function bindBrowserType() { // Bind browser type event
@@ -243,7 +244,7 @@ function onGisPathByPoints() { // Paint path by gps points on map event
 }
 
 function onGisPathByPointsComplete(success, message) { // Paint path by gps points on map complete event
-	// alert('onGisPathByPointsFail');
+	// alert('onGisPathByPointsComplete');
 	var el = $("#gis-message");
 	
 	if (0 < el.length) {
@@ -251,18 +252,68 @@ function onGisPathByPointsComplete(success, message) { // Paint path by gps poin
 			// alert(message);			
 			lib.services.post(
 				'./jsp/savePath.jsp'
-				, {'id':10000, 'path':message}
+				, {'id':10000, 'path':escape(message)}
 				, function(data) { // success
 					if ("true" != $.trim(data))
-						alert('无法正确保存路径:' + data); 
+						alert('无法保存规划路径:' + data); 
 				}
 				, function() { // fail
-					alert('无法正确调用保存路径过程'); 
+					alert('无法保存规划路径'); 
 				}
 				, 2000
 			);
 		} else {
 			el.html(message);
+		}
+	}
+}
+
+function bindGisShowPath() { // Bind show saved path on map event
+	var el = null;
+	try {
+		el = $("#gis-show-path");
+		if (0 < el.length)
+			el.click(onGisShowPath);
+	} catch(e) {
+		throw e;
+	} finally {
+		e = null;
+	}
+}
+
+function onGisShowPath() { // Show saved path on map event
+	// alert("onGisShowPath");
+	var el = $("#gis-message");
+	if (0 < el.length) 
+		el.html("");
+
+	lib.services.post(
+		'./jsp/loadPath.jsp'
+		, {'id':10000}
+		, function(data) { // success
+			// alert(unescape(data));
+			if (typeof data == 'string') {
+				var path = unescape(data); // alert(path);		
+				lib.gis.baidu.showPath(path, onGisShowPathComplete);
+			} else {
+				alert('无法加载保存路径');
+			}
+		}
+		, function() { // fail
+			alert('无法加载保存路径'); 
+		}
+	);
+}
+
+function onGisShowPathComplete(success, message) { // Gis show path complete event
+	// alert('onGisShowPathComplete');
+	var el = $("#gis-message");
+	
+	if (0 < el.length) {
+		if (success) {
+			el.html('绘制路径完成');
+		} else {
+			el.html('绘制路径失败：' +message);
 		}
 	}
 }

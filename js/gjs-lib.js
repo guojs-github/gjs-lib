@@ -1094,6 +1094,12 @@ gjs.lib.gis.baidu = ( function() {
 			mozBoxShadow:"#666 0px 0px 10px",
 			boxShadow:"#666 0px 0px 10px"									
 		}
+		, planPathStyle : { // 计划线路样式
+			strokeColor:"gray" 
+			, strokeStyle: "solid" // "dashed"
+			, strokeWeight:5 
+			, strokeOpacity:0.5
+		}
 		, message: ""
 		, marker: function(thisObj, point, animate, icon) { // 为定位点添加标注
 			// Check
@@ -1141,6 +1147,9 @@ gjs.lib.gis.baidu = ( function() {
 
 			// 设置视野
 			map.setViewport(points);
+		}
+		, getPathPointPrompt: function(distance, duration) { // 显示路径估算距离与时间信息
+			return " 【" + common.getDistancePrompt(distance) + "，" + common.getDurationPrompt(duration) +"】"
 		}
 		, checkAddress: function(address, onFail) { // 检查地理信息是否有效
 			$.ajax({
@@ -1385,12 +1394,62 @@ gjs.lib.gis.baidu = ( function() {
 						break;
 					} // found
 				} // 搜索路径点
-			} // 每个必经点			
+			} // 每个必经点
+			
+			// 保存计划线路
+			result.planPath = path;
 		}
-		, getPathPointPrompt: function(distance, duration) { // 显示路径估算距离与时间信息
-			return " 【" + common.getDistancePrompt(distance) + "，" + common.getDurationPrompt(duration) +"】"
-		}
-		
+		, showPath: function(data, onComplete) { // Paint specified path				
+			// Initialize the map
+			var map = this.init();
+			
+			// Load data
+			var path = null;
+			try {
+				path = eval('(' + data + ')');
+			} catch(ex) {
+				if (common.isFunction(onComplete))
+					onComplete(false, ex);
+				else
+					throw ex;
+			}
+			
+			var thisObj = this;
+			thisObj.map = map;
+
+ 			// 显示起点
+			var start = new BMap.Point(path.start.lng,path.start.lat);
+			this.marker(thisObj, start, false, 'start point');
+			if (!common.isEmptyString(path.start.address))
+				this.label(thisObj, start, "起点:" + path.start.address);
+			
+ 			// 显示终点
+			var end = new BMap.Point(path.end.lng,path.end.lat);
+			this.marker(thisObj, end, false, 'end point');
+			if (!common.isEmptyString(path.end.address))
+				this.label(thisObj, end, "终点:" + path.end.address);
+
+			// 显示必经点
+			if (common.isObject(path.transitPoints)) {
+				for (var i = 0; i < path.transitPoints.length; i++ ) {							
+					var transitPoint = new BMap.Point(path.transitPoints[i].lng, path.transitPoints[i].lat);
+					this.marker(thisObj, transitPoint, false, 'transit point');
+					if (!common.isEmptyString(path.transitPoints[i].address))
+						this.label(thisObj, transitPoint, "必经点" + (i + 1) + ":" + path.transitPoints[i].address);							
+				}
+			}
+			
+			// 显示计划线路
+			var points = new Array();
+			for (var i = 0; i < path.planPath.length; i++)
+				points[i] = new BMap.Point(path.planPath[i].lng, path.planPath[i].lat);
+			var line = new BMap.Polyline(points, this.planPathStyle); //创建折线对象
+			map.addOverlay(line);
+			// line.enableEditing();
+			
+			// 设置视野
+			this.ensureLocateViewPort(map, points);												
+		}		
 	};
 	
 	return $.extend({}, parent, obj);
